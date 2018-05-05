@@ -1,17 +1,13 @@
 package com.swpu.DubboMonitor.transation;
 
-
 import com.swpu.DubboMonitor.agent.AppInfo;
 import com.swpu.DubboMonitor.transation.asm.MonitorClassAdapter;
-
 import javassist.*;
-
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -36,11 +32,10 @@ public class ClassTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-
-        byte [] trans = null;
-        ClassPool pool = ClassPool.getDefault();
-        CtClass cl = null;
-
+    	ClassPool pool = null;
+    	byte [] trans = null;
+    	CtClass cl = null;
+	    pool = ClassPool.getDefault();
         //加入判断，只对需要修改的地方进行修改
         if(className.matches(".*persist.entity.*")||
                 AppInfo.getInstance().matchBlackList(className)||
@@ -52,7 +47,7 @@ public class ClassTransformer implements ClassFileTransformer {
             return null;
         }
 
-//        logger.info(className);
+        logger.info(className);
 
         //对工程部分开始插入代码
         try{
@@ -120,7 +115,7 @@ public class ClassTransformer implements ClassFileTransformer {
                     }
                 }
 
-            } /*else if(HTTPX_START.equals(className)){
+            } else if(HTTPX_START.equals(className)){
 
                 pool.insertClassPath(new LoaderClassPath(loader));
                 cl = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
@@ -176,7 +171,7 @@ public class ClassTransformer implements ClassFileTransformer {
                     behavior.insertBefore("com.danlu.dlmonitor.agent.Interceptor.codisUse(\""+ behavior.getName() +"\");");
                 }
 
-            }*/else{
+            }else{
 
                 ClassReader cr = new ClassReader(classfileBuffer);
                 ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);

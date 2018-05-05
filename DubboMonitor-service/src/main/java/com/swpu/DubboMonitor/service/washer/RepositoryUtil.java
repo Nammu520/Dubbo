@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import com.swpu.DubboMonitor.core.dto.Record;
+import com.alibaba.fastjson.TypeReference;
+import com.swpu.DubboMonitor.core.dto.MethodTemp;
+import com.swpu.DubboMonitor.core.dto.RecordInfo;
 import com.swpu.DubboMonitor.service.common.WasherGobal;
 import com.swpu.DubboMonitor.service.util.RedisUtil;
 
@@ -21,7 +23,7 @@ public class RepositoryUtil
 {
 
     public HashSet<String> keySets = new HashSet<String>();
-    public List<Record> records = new ArrayList<Record>();
+    public List<RecordInfo> records = new ArrayList<RecordInfo>();
     
     @Autowired
     private RedisUtil redis;
@@ -29,7 +31,7 @@ public class RepositoryUtil
      * 遍历list，如果没有冲突，返回一条日志，如果有就从codis中取出一条日志返回
      * @return Record
      */
-    public Record getRecord()
+    public RecordInfo getRecord()
     {
         try
         {
@@ -39,7 +41,7 @@ public class RepositoryUtil
                 {
                     for (int i = 0; i < records.size(); i++)
                     {
-                        Record record = records.get(i);
+                        RecordInfo record = records.get(i);
                         String combineKey = record.getTraceID() + record.getSpan();
                         if (!keySets.contains(combineKey))
                         {
@@ -73,13 +75,13 @@ public class RepositoryUtil
      * 从codis的队列中取出一条日志，如果该日志的trace和span组成的联合主键在keySet中存在，则将这条日志放到list中去，然后继续从codis中取，直到取出一条日志为止
      * @return Record
      */
-    public Record getRecordFromCodis() throws InterruptedException
+    public RecordInfo getRecordFromCodis() throws InterruptedException
     {
         boolean flag = true;
-        Record record = null;
+        RecordInfo record = null;
         while (flag)
         {
-            record = (Record)redis.listLeftPop(WasherGobal.KEY_DLMONTITOR);
+            record = (RecordInfo)redis.listLeftPop(WasherGobal.KEY_DLMONTITOR,new TypeReference<RecordInfo>(){});
             if (record != null)
             {
                 synchronized (RepositoryUtil.class)

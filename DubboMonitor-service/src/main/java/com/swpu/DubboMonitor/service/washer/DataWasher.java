@@ -1,14 +1,19 @@
 package com.swpu.DubboMonitor.service.washer;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.swpu.DubboMonitor.core.MethodManager;
 import com.swpu.DubboMonitor.core.RequestManager;
 import com.swpu.DubboMonitor.core.dto.MethodTemp;
 import com.swpu.DubboMonitor.core.dto.RequestTemp;
 import com.swpu.DubboMonitor.core.util.TransferUtil;
-import com.swpu.DubboMonitor.core.dto.Record;
+import com.swpu.DubboMonitor.core.dto.RecordInfo;
 import com.swpu.DubboMonitor.service.common.WasherGobal;
 import com.swpu.DubboMonitor.service.util.RedisUtil;
 
@@ -30,7 +35,9 @@ public class DataWasher
      * 处理方法打印的日志
      * @param Reocrd(日志)
      */
-    public void dealOneRecord(Record record)
+    private static Logger logger = LoggerFactory.getLogger(DataWasher.class);
+    
+    public void dealOneRecord(RecordInfo record)
     {
         MethodTemp temp = null;
         boolean flag=false;
@@ -38,14 +45,14 @@ public class DataWasher
         String traceID = record.getTraceID();
         if (redis.exists(traceID))
         {
-            temp = (MethodTemp)redis.hget(traceID, span);
+            temp = redis.hget(traceID, span,new TypeReference<MethodTemp>(){});
             if (temp != null)
             {
                 int index = span.lastIndexOf('.');
                 if (index != -1 && span.substring(0, index).indexOf('.') != -1)
                 {
                     String parentSpan = span.substring(0, index);
-                    MethodTemp tempParen = (MethodTemp)redis.hget(traceID, parentSpan);
+                    MethodTemp tempParen = redis.hget(traceID, parentSpan,new TypeReference<MethodTemp>(){});
                     if (tempParen != null)
                     {
                         temp.setParentId(tempParen.getId());
@@ -61,6 +68,7 @@ public class DataWasher
                     String tempStr = temp.getMethodName().replaceAll("\\s+", " ");
                     temp.setMethodName(tempStr);
                 }
+                logger.info("插入调用链日志到数据库:{}",JSON.toJSONString(temp));
                 methodManager.insertOneMethod(temp);
                 if(flag)
                 {
@@ -84,7 +92,7 @@ public class DataWasher
      * 处理请求打印的日志
      * @param Reocrd(日志)
      */
-    public void dealOneHttpRecord(Record record)
+    public void dealOneHttpRecord(RecordInfo record)
     {
         RequestTemp temp = null;
         String span = record.getSpan();
@@ -92,13 +100,13 @@ public class DataWasher
         String traceID = record.getTraceID();
         if (redis.exists(traceID))
         {
-            temp = (RequestTemp)redis.hget(traceID, span);
+            temp = redis.hget(traceID, span,new TypeReference<RequestTemp>(){});
             if (temp != null)
             {
                 if (span.indexOf('.') != -1)
                 {
                     span = span.substring(4);
-                    MethodTemp tempParen = (MethodTemp)redis.hget(traceID, span);
+                    MethodTemp tempParen = redis.hget(traceID, span,new TypeReference<MethodTemp>(){});
                     if (tempParen != null)
                     {
                         temp.setParentId(tempParen.getAppId());
@@ -109,6 +117,7 @@ public class DataWasher
                     }
                 }
                 temp = TransferUtil.transferRequestTemp(temp, record);
+                logger.info("插入调用链日志到数据库:{}",JSON.toJSONString(temp));
                 requestManager.insertOneRequest(temp);
                 if(flag)
                 {

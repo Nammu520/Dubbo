@@ -1,10 +1,13 @@
 package com.swpu.DubboMonitor.agent;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +21,10 @@ public class XMLReader {
 	/**
 	 * 读取XML文件
 	 */
+	
 	static void readFile(){
 		File file = new File(System.getProperty("agent.dir")+"config.xml");
+		System.out.println(System.getProperty("agent.dir")+"config.xml");
 		if(file.exists()){
 			readXMLFile(file);
 		}
@@ -30,7 +35,7 @@ public class XMLReader {
 	 * @param file xml文件
 	 */
 	private static void readXMLFile(File file) {
-		System.out.println(file.getAbsolutePath());
+		System.out.println("hello "+file.getAbsolutePath());
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -58,7 +63,6 @@ public class XMLReader {
 			for(int i=0;i<allList.getLength();i++){
 				info.addWhiteListItem(allList.item(i).getFirstChild().getNodeValue()+".*");
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

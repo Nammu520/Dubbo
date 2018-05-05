@@ -9,7 +9,7 @@ import com.swpu.DubboMonitor.core.dto.MethodRequestDTO;
 import com.swpu.DubboMonitor.core.dto.MethodTemp;
 import com.swpu.DubboMonitor.core.dto.RequestTemp;
 import com.swpu.DubboMonitor.persist.entity.MethodRequestEntity;
-import com.swpu.DubboMonitor.core.dto.Record;
+import com.swpu.DubboMonitor.core.dto.RecordInfo;
 
 /**
  * DTO和Entity的转换工具类
@@ -77,7 +77,7 @@ public class TransferUtil
      * @param record
      * @return MethodTemp
      */
-    public static MethodTemp recordToMethodTemp(Record record)
+    public static MethodTemp recordToMethodTemp(RecordInfo record)
     {
         MethodTemp methodTemp=new MethodTemp();
         BeanUtils.copyProperties(record, methodTemp);
@@ -96,7 +96,7 @@ public class TransferUtil
      * @param record
      * @return MethodTemp
      */
-    public static MethodTemp transferMethodTemp(MethodTemp methodTemp,Record record){
+    public static MethodTemp transferMethodTemp(MethodTemp methodTemp,RecordInfo record){
         int runTime=(int)Math.abs(methodTemp.getTime()-record.getTime());
         methodTemp.setRunTime(runTime);
         long startTime=methodTemp.getTime() >= record.getTime() ? record.getTime() : methodTemp.getTime();
@@ -110,7 +110,7 @@ public class TransferUtil
      * @param record
      * @return RequestTemp
      */
-    public static RequestTemp recordToRequesTemp(Record record){
+    public static RequestTemp recordToRequesTemp(RecordInfo record){
         RequestTemp requestTemp=new RequestTemp();
         BeanUtils.copyProperties(record, requestTemp);
         requestTemp.setRequestId(record.getTraceID());
@@ -129,7 +129,7 @@ public class TransferUtil
      * @param record
      * @return RequestTemp
      */
-    public static RequestTemp transferRequestTemp(RequestTemp requestTemp,Record record){
+    public static RequestTemp transferRequestTemp(RequestTemp requestTemp,RecordInfo record){
         if(!requestTemp.getUseFlag()){
             requestTemp.setUrl(record.getClassName());
             requestTemp.setRequestMethod(record.getThreadNum());

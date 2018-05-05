@@ -3,7 +3,7 @@ package com.swpu.DubboMonitor.service.washer;
 
 import org.springframework.util.StringUtils;
 
-import com.swpu.DubboMonitor.core.dto.Record;
+import com.swpu.DubboMonitor.core.dto.RecordInfo;
 
 /**
  * 线程类
@@ -30,7 +30,7 @@ public class WashThread implements Runnable
     {
         while (check)
         {
-            Record record;
+            RecordInfo record;
             try
             {
                 record = repositoryUtil.getRecord();

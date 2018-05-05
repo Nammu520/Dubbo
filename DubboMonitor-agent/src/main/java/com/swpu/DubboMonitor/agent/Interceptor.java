@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * 拦截其中插入的各项方法
@@ -24,6 +27,45 @@ public class Interceptor {
 
     private static Logger logger = LoggerFactory.getLogger(Interceptor.class);
 
+    /**
+     * http请求初始化
+     * @param request 传入HTTP Request
+     * @param response 传入HTTP Response
+     */
+    public static void start(HttpServletRequest request, HttpServletResponse response) {
+
+        if(data==null){
+            data = new ThreadLocal<>();
+        }
+
+        String traceId = request.getHeader("traceId");
+        String span = request.getHeader("span");
+        String remainderString = request.getHeader("remainder");
+        String appId = request.getHeader("appId");
+        String appName = request.getHeader("appName");
+
+        Trace trace;
+        //如果其中数据为空，则表明其中有数据丢失，或者其中存在
+        if(StringUtils.isBlank(traceId)||StringUtils.isBlank(span)||
+                StringUtils.isBlank(appId)||StringUtils.isBlank(appName)||
+                StringUtils.isBlank(remainderString)) {
+
+            trace = new Trace(UID.next());
+            trace.appId = UID.next();
+            data.set(trace);
+
+        }else {
+            int remainder = Integer.valueOf(remainderString);
+            trace = new Trace(traceId,span,remainder);
+            trace.appId = UID.next();
+            data.set(trace);
+        }
+
+        Collector.addOne(new Record(data.get().traceId, data.get().span, System.currentTimeMillis(),request.getRequestURI(),
+                "httpUseBegin", request.getMethod(), false, null, true, data.get().appId,appInfo.getAppName()));
+
+    }
+    
     /**
      * 非http方式的初始化，比如新建线程方式
      */

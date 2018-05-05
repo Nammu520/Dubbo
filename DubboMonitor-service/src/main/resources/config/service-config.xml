@@ -19,6 +19,8 @@
 	                    
 
 	<context:component-scan base-package="com.swpu.DubboMonitor.service" />
+	
+
 	<task:executor id="executor" pool-size="5" />  
     <task:scheduler id="scheduler" pool-size="10" />  
     <task:annotation-driven executor="executor" scheduler="scheduler" />
@@ -27,4 +29,4 @@
 	<bean id="repositoryUtil" class="com.swpu.DubboMonitor.service.washer.RepositoryUtil" /> 
 	<bean id="initThread" class="com.swpu.DubboMonitor.service.washer.beans.InitWasher" init-method="begin" />
 	<bean id="initRedis" class="com.swpu.DubboMonitor.service.util.RedisUtil" init-method="initJedisPool"></bean>
-</beans>
+	</beans>
