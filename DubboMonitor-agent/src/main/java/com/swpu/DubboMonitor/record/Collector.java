@@ -20,7 +20,7 @@ public class Collector {
 	private static ConcurrentLinkedQueue<Record> bufferTwo = new ConcurrentLinkedQueue<>();
 
 	static Logger logger = LoggerFactory.getLogger(Collector.class);
-	static final String CODIS_KEY = "DlMonitorCodisList2";
+	static final String CODIS_KEY = "dengyuMonitor";
 
 	private static boolean writeToOne = true;
 	static boolean loopFlag = true;

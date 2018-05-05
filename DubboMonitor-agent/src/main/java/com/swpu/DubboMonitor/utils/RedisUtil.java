@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.springframework.util.StringUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -15,10 +17,10 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisUtil
 {
-    private String ADDR = "192.168.50.142";
+	private String ADDR = "127.0.0.1";
 
     // Redis的端口号
-    private int PORT = 6380;
+    private int PORT = 6379;
 
     // 访问密码
     private static String AUTH = "dengyuswpu";
@@ -47,21 +49,38 @@ public class RedisUtil
      * 
      * @return
      */
-    public void initJedisPool()
-    {
-        try
-        {
-            JedisPoolConfig config = new JedisPoolConfig();
-            config.setMaxTotal(MAX_ACTIVE);
-            config.setMaxIdle(MAX_IDLE);
-            config.setMaxWaitMillis(MAX_WAIT);
-            config.setTestOnBorrow(TEST_ON_BORROW);
-            jedisPool = new JedisPool(config, ADDR, PORT, TIMEOUT, AUTH);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+//    public void initJedisPool()
+//    {
+//        try
+//        {
+//            JedisPoolConfig config = new JedisPoolConfig();
+//            config.setMaxTotal(MAX_ACTIVE);
+//            config.setMaxIdle(MAX_IDLE);
+//            config.setMaxWaitMillis(MAX_WAIT);
+//            config.setTestOnBorrow(TEST_ON_BORROW);
+//            if(jedisPool == null){
+//            	jedisPool = new JedisPool(config, ADDR, PORT, TIMEOUT, AUTH);
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            e.printStackTrace();
+//        }
+//    }
+    public RedisUtil(){
+    	 try
+	       {
+	           JedisPoolConfig config = new JedisPoolConfig();
+	           config.setMaxTotal(MAX_ACTIVE);
+	           config.setMaxIdle(MAX_IDLE);
+	           config.setMaxWaitMillis(MAX_WAIT);
+	           config.setTestOnBorrow(TEST_ON_BORROW);
+	           jedisPool = new JedisPool(config, ADDR, PORT, TIMEOUT, AUTH);
+	       }
+	       catch (Exception e)
+	       {
+	           e.printStackTrace();
+	       }
     }
     public Jedis getJedis()
     {
@@ -90,6 +109,7 @@ public class RedisUtil
         ByteArrayOutputStream bai = null;
         try
         {
+        	System.out.println(JSON.toJSONString(obj));
             bai = new ByteArrayOutputStream();
             obi = new ObjectOutputStream(bai);
             obi.writeObject(obj);
@@ -122,20 +142,18 @@ public class RedisUtil
         }
     }
 
-    public Object listLeftPop(String key)
+    public <T>T listLeftPop(String key,TypeReference<T> result)
     {
         try
         {
             if (!StringUtils.isEmpty(key))
             {
-                byte[] bytes;
                 Jedis resource = jedisPool.getResource();
-                bytes = resource.lpop(serialize(key));
+                String values = resource.lpop(key);
                 returnResource(resource);
-                if (bytes != null && bytes.length > 0)
+                if (!StringUtils.isEmpty(values))
                 {
-                    Object object = unserizlize(bytes);
-                    return object;
+                    return JSON.parseObject(values, result);
                 }
             }
         }
@@ -150,9 +168,9 @@ public class RedisUtil
     {
         if (!StringUtils.isEmpty(key) && object != null)
         {
-            byte[] bytes = serialize(object);
+            String values = JSON.toJSONString(object);
             Jedis resource = jedisPool.getResource();
-            resource.rpush(serialize(key), bytes);
+            resource.rpush(key, values);
             returnResource(resource);
         }
     }
@@ -162,7 +180,7 @@ public class RedisUtil
         if (!StringUtils.isEmpty(key))
         {
             Jedis resource = jedisPool.getResource();
-            boolean flag = resource.exists(serialize(key));
+            boolean flag = resource.exists(key);
             returnResource(resource);
             return flag;
         }
@@ -172,9 +190,9 @@ public class RedisUtil
     public void expire(String key, int seconds)
     {
         Jedis resource = jedisPool.getResource();
-        if (resource.exists(serialize(key)))
+        if (resource.exists(key))
         {
-            resource.expire(serialize(key), seconds);
+            resource.expire(key, seconds);
         }
         returnResource(resource);
     }
@@ -184,26 +202,21 @@ public class RedisUtil
         if (!StringUtils.isEmpty(keyRedis) && !StringUtils.isEmpty(keyMap) && obj != null)
         {
             Jedis resource = jedisPool.getResource();
-            resource.hset(serialize(keyRedis), serialize(keyMap), serialize(obj));
+            resource.hset(keyRedis, keyMap, JSON.toJSONString(obj));
             returnResource(resource);
         }
     }
 
-    public Object hget(String keyRedis, String keyMap)
+    public <T>T hget(String keyRedis, String keyMap,TypeReference<T> result)
     {
         if (!StringUtils.isEmpty(keyRedis) && !StringUtils.isEmpty(keyMap))
         {
             Jedis resource = jedisPool.getResource();
-            byte[] bytes = resource.hget(serialize(keyRedis), serialize(keyMap));
+            String values = resource.hget(keyRedis, keyMap);
             returnResource(resource);
-            if (bytes.length > 0)
+            if (!StringUtils.isEmpty(values))
             {
-                Object object = unserizlize(bytes);
-                return object;
-            }
-            else
-            {
-                return null;
+                return JSON.parseObject(values, result);
             }
         }
         return null;
@@ -215,10 +228,9 @@ public class RedisUtil
         if (!StringUtils.isEmpty(key))
         {
             Jedis resource = jedisPool.getResource();
-            Long size = resource.llen(serialize(key));
+            Long size = resource.llen(key);
             returnResource(resource);
             return size;
         }
         return (long) 0;
-    }
-}
+    }}

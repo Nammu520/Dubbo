@@ -10,7 +10,6 @@ public class Monitor {
 	
 	
     public static void premain(String agentOps, Instrumentation inst) throws Exception {
-    	System.out.println("agent insert begin");
         if(System.getProperty("agent.appName")==null){
             throw new Exception("Failed to get AppName, Please add your app name in VM options by using \"-Dagent.appName=\"");
         }

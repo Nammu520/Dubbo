@@ -132,6 +132,7 @@
 		<module>DubboMonitor-core</module>
 		<module>DubboMonitor-service</module>
 		<module>DubboMonitor-web</module>
+		<module>DubboMonitor-agent</module>
 	</modules>
 
 	<build>
