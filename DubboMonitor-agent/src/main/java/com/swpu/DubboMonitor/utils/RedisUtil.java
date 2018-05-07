@@ -8,8 +8,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.parser.ParserConfig;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -144,6 +146,7 @@ public class RedisUtil
 
     public <T>T listLeftPop(String key,TypeReference<T> result)
     {
+    	ParserConfig.getGlobalInstance().setAsmEnable(false);
         try
         {
             if (!StringUtils.isEmpty(key))
@@ -166,6 +169,7 @@ public class RedisUtil
     }
     public <T>void listRightPush(String key, T object)
     {
+    	ParserConfig.getGlobalInstance().setAsmEnable(false);
         if (!StringUtils.isEmpty(key) && object != null)
         {
             String values = JSON.toJSONString(object);
@@ -199,6 +203,7 @@ public class RedisUtil
 
     public void hset(String keyRedis, String keyMap, Object obj)
     {
+    	ParserConfig.getGlobalInstance().setAsmEnable(false);
         if (!StringUtils.isEmpty(keyRedis) && !StringUtils.isEmpty(keyMap) && obj != null)
         {
             Jedis resource = jedisPool.getResource();
@@ -209,6 +214,7 @@ public class RedisUtil
 
     public <T>T hget(String keyRedis, String keyMap,TypeReference<T> result)
     {
+    	ParserConfig.getGlobalInstance().setAsmEnable(false);
         if (!StringUtils.isEmpty(keyRedis) && !StringUtils.isEmpty(keyMap))
         {
             Jedis resource = jedisPool.getResource();
