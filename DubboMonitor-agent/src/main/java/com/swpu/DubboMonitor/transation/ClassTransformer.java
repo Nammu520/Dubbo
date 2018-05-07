@@ -158,7 +158,7 @@ public class ClassTransformer implements ClassFileTransformer {
                 if(ct==null){
                     return null;
                 }
-                ct.insertBefore("com.danlu.dlmonitor.agent.Interceptor.modifyDisconf($1);");
+                ct.insertBefore("com.swpu.DubboMonitor.agent.Interceptor.modifyDisconf($1);");
 
             }else if(DLCODIS_START.equals(className)){
 
@@ -168,7 +168,7 @@ public class ClassTransformer implements ClassFileTransformer {
                     if(behavior.getName().equals("listRightPush")||behavior.getName().equals("<init>")){
                         continue;
                     }
-                    behavior.insertBefore("com.danlu.dlmonitor.agent.Interceptor.codisUse(\""+ behavior.getName() +"\");");
+                    behavior.insertBefore("com.swpu.DubboMonitor.agent.Interceptor.codisUse(\""+ behavior.getName() +"\");");
                 }
 
             }else{

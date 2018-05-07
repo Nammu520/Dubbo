@@ -1,6 +1,5 @@
 package com.swpu.DubboMonitor.utils;
 
-import org.apache.commons.lang.StringUtils;
 
 import com.swpu.DubboMonitor.traceClass.Trace;
 

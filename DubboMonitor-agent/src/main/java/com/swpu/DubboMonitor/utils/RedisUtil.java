@@ -164,7 +164,7 @@ public class RedisUtil
         }
         return null;
     }
-    public void listRightPush(String key, Object object)
+    public <T>void listRightPush(String key, T object)
     {
         if (!StringUtils.isEmpty(key) && object != null)
         {
