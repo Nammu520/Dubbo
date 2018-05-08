@@ -9,13 +9,17 @@ import java.io.ObjectOutputStream;
 
 
 
+
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
 
 public class RedisUtil
 {
@@ -172,10 +176,17 @@ public class RedisUtil
     	ParserConfig.getGlobalInstance().setAsmEnable(false);
         if (!StringUtils.isEmpty(key) && object != null)
         {
-            String values = JSON.toJSONString(object);
-            Jedis resource = jedisPool.getResource();
-            resource.rpush(key, values);
-            returnResource(resource);
+            ObjectMapper mapper = new ObjectMapper();
+            String values;
+			try {
+				values = mapper.writeValueAsString(object);
+				 //String values = JSON.toJSONString(object);
+	            Jedis resource = jedisPool.getResource();
+	            resource.rpush(key, values);
+	            returnResource(resource);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
         }
     }
     
