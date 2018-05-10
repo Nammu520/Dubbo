@@ -43,48 +43,53 @@ public class DataWasher
         boolean flag=false;
         String span = record.getSpan();
         String traceID = record.getTraceID();
-        if (redis.exists(traceID))
-        {
-            temp = redis.hget(traceID, span,new TypeReference<MethodTemp>(){});
-            if (temp != null)
-            {
-                int index = span.lastIndexOf('.');
-                if (index != -1 && span.substring(0, index).indexOf('.') != -1)
-                {
-                    String parentSpan = span.substring(0, index);
-                    MethodTemp tempParen = redis.hget(traceID, parentSpan,new TypeReference<MethodTemp>(){});
-                    if (tempParen != null)
-                    {
-                        temp.setParentId(tempParen.getId());
-                    }
-                    else 
-                    {
-                        flag=true;
-                    }
-                }
-                temp = TransferUtil.transferMethodTemp(temp, record);
-                if(!StringUtils.isEmpty(temp.getClassName()) && temp.getClassName().equals("SQL USE"))
-                {
-                    String tempStr = temp.getMethodName().replaceAll("\\s+", " ");
-                    temp.setMethodName(tempStr);
-                }
-                logger.info("插入调用链日志到数据库:{}",JSON.toJSONString(temp));
-                methodManager.insertOneMethod(temp);
-                if(flag)
-                {
-                    WasherGobal.methodId.add(temp.getId());
-                }
-            }
-            else
-            {
-                redis.hset(traceID, span, TransferUtil.recordToMethodTemp(record));
-            }
-        }
-        else
-        {
-            redis.hset(traceID, span, TransferUtil.recordToMethodTemp(record));
-            redis.expire(traceID, WasherGobal.CACHE_TIME_OUT);
-        }
+        try {
+			
+	        if (redis.exists(traceID))
+	        {
+	            temp = redis.hget(traceID, span,new TypeReference<MethodTemp>(){});
+	            if (temp != null)
+	            {
+	                int index = span.lastIndexOf('.');
+	                if (index != -1 && span.substring(0, index).indexOf('.') != -1)
+	                {
+	                    String parentSpan = span.substring(0, index);
+	                    MethodTemp tempParen = redis.hget(traceID, parentSpan,new TypeReference<MethodTemp>(){});
+	                    if (tempParen != null)
+	                    {
+	                        temp.setParentId(tempParen.getId());
+	                    }
+	                    else 
+	                    {
+	                        flag=true;
+	                    }
+	                }
+	                temp = TransferUtil.transferMethodTemp(temp, record);
+	                if(!StringUtils.isEmpty(temp.getClassName()) && temp.getClassName().equals("SQL USE"))
+	                {
+	                    String tempStr = temp.getMethodName().replaceAll("\\s+", " ");
+	                    temp.setMethodName(tempStr);
+	                }
+	                logger.info("插入调用链日志到数据库:{}",JSON.toJSONString(temp));
+	                methodManager.insertOneMethod(temp);
+	                if(flag)
+	                {
+	                    WasherGobal.methodId.add(temp.getId());
+	                }
+	            }
+	            else
+	            {
+	                redis.hset(traceID, span, TransferUtil.recordToMethodTemp(record));
+	            }
+	        }
+	        else
+	        {
+	            redis.hset(traceID, span, TransferUtil.recordToMethodTemp(record));
+	            redis.expire(traceID, WasherGobal.CACHE_TIME_OUT);
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
     
@@ -98,42 +103,46 @@ public class DataWasher
         String span = record.getSpan();
         boolean flag = false;
         String traceID = record.getTraceID();
-        if (redis.exists(traceID))
-        {
-            temp = redis.hget(traceID, span,new TypeReference<RequestTemp>(){});
-            if (temp != null)
-            {
-                if (span.indexOf('.') != -1)
-                {
-                    span = span.substring(4);
-                    MethodTemp tempParen = redis.hget(traceID, span,new TypeReference<MethodTemp>(){});
-                    if (tempParen != null)
-                    {
-                        temp.setParentId(tempParen.getAppId());
-                    }
-                    else 
-                    {
-                        flag=true; 
-                    }
-                }
-                temp = TransferUtil.transferRequestTemp(temp, record);
-                logger.info("插入调用链日志到数据库:{}",JSON.toJSONString(temp));
-                requestManager.insertOneRequest(temp);
-                if(flag)
-                {
-                    String id=traceID+","+temp.getAppId();
-                    WasherGobal.requestId.add(id);
-                }
-            }
-            else
-            {
-                redis.hset(traceID, span, TransferUtil.recordToRequesTemp(record));
-            }
-        }
-        else
-        {
-            redis.hset(traceID, span, TransferUtil.recordToRequesTemp(record));
-            redis.expire(traceID, WasherGobal.CACHE_TIME_OUT);
-        }
+        try {
+	        if (redis.exists(traceID))
+	        {
+	            temp = redis.hget(traceID, span,new TypeReference<RequestTemp>(){});
+	            if (temp != null)
+	            {
+	                if (span.indexOf('.') != -1)
+	                {
+	                    span = span.substring(4);
+	                    MethodTemp tempParen = redis.hget(traceID, span,new TypeReference<MethodTemp>(){});
+	                    if (tempParen != null)
+	                    {
+	                        temp.setParentId(tempParen.getAppId());
+	                    }
+	                    else 
+	                    {
+	                        flag=true; 
+	                    }
+	                }
+	                temp = TransferUtil.transferRequestTemp(temp, record);
+	                logger.info("插入调用链日志到数据库:{}",JSON.toJSONString(temp));
+	                requestManager.insertOneRequest(temp);
+	                if(flag)
+	                {
+	                    String id=traceID+","+temp.getAppId();
+	                    WasherGobal.requestId.add(id);
+	                }
+	            }
+	            else
+	            {
+	                redis.hset(traceID, span, TransferUtil.recordToRequesTemp(record));
+	            }
+	        }
+	        else
+	        {
+	            redis.hset(traceID, span, TransferUtil.recordToRequesTemp(record));
+	            redis.expire(traceID, WasherGobal.CACHE_TIME_OUT);
+	        }
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     }
 }
