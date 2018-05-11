@@ -37,7 +37,8 @@ public class ClassTransformer implements ClassFileTransformer {
     	CtClass cl = null;
 	    pool = ClassPool.getDefault();
         //加入判断，只对需要修改的地方进行修改
-        if(className.matches(".*persist.entity.*")||
+        if(className.matches(".*entity.*")||
+        		className.matches(".*dto.*") ||
                 AppInfo.getInstance().matchBlackList(className)||
                 !(AppInfo.getInstance().matchWhiteList(className)||
                 HTTP_START.equals(className)|| DUBBO_START.equals(className)||
