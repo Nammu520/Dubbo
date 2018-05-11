@@ -151,7 +151,7 @@ public class ClassTransformer implements ClassFileTransformer {
                 jsonMethod.insertBefore(code);
                 textMethod.insertBefore(code);
 
-            }else if(DISCONF_START.equals(className)){
+            }/*else if(DISCONF_START.equals(className)){
 
                 cl = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
                 CtMethod ct = cl.getDeclaredMethod("setLocations");
@@ -171,7 +171,7 @@ public class ClassTransformer implements ClassFileTransformer {
                     behavior.insertBefore("com.swpu.DubboMonitor.agent.Interceptor.codisUse(\""+ behavior.getName() +"\");");
                 }
 
-            }else{
+            }*/else{
 
                 ClassReader cr = new ClassReader(classfileBuffer);
                 ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);

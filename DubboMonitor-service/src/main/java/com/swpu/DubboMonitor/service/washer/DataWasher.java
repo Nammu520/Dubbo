@@ -88,7 +88,7 @@ public class DataWasher
 	            redis.expire(traceID, WasherGobal.CACHE_TIME_OUT);
 	        }
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("[插入数据库主键冲突]",e.getMessage());
 		}
     }
 
@@ -142,7 +142,7 @@ public class DataWasher
 	            redis.expire(traceID, WasherGobal.CACHE_TIME_OUT);
 	        }
 		} catch (Exception e) {
-			// TODO: handle exception
+			logger.error("[插入数据库主键冲突]",e.getMessage());
 		}
     }
 }

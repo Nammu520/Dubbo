@@ -86,7 +86,7 @@ public class DataCorrect
 	        }
 	    	
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("[插入数据库主键冲突]",e.getMessage());
 		}
 	    }
 }
